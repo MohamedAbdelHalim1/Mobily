@@ -47,5 +47,8 @@ Route::get('/search/{value?}', [HomeController::class, 'search'])->name('search'
 Route::get('/history', [HomeController::class, 'history'])->name('history');
 Route::post('/delete_history_item/{id}', [HomeController::class, 'history_item_del']);
 Route::post('/delete_history_all', [HomeController::class, 'history_del_all']);
+Route::get('/checkout/{total}/{quantity}',[HomeController::class ,'checkout'])->name('checkout');
+Route::post('/checkout/{total}/{quantity}', [HomeController::class, 'shipping'])->name('shipping');
+Route::post('/checkout', [HomeController::class, 'order_details'])->name('order_details');
 
 

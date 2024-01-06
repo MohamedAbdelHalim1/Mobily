@@ -15,6 +15,11 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use App\Models\UserProductReview;
+use App\Models\Shipping;
+use App\Models\Order;
+use App\Models\OrderDetails;
+use App\Mail\SendMailDemo;
+use Mail;
 
 
 class HomeController extends Controller
@@ -251,20 +256,17 @@ class HomeController extends Controller
 
     public function search(Request $request , $value = null){
         $search_value = $value ? : $request->search ;
-       $models = Category::get();
-       $search = Product::where('name','LIKE','%'.$search_value.'%')->get();
-
-
-      
+        $models = Category::get();
+        $search = Product::where('name','LIKE','%'.$search_value.'%')->get();
         $history = new SearchHistory;
         $history->user_id = Auth::id();
         $history->content = $search_value;
         $history->save();
         $retrieve_history = SearchHistory::where('user_id','=',Auth::id())
         ->orderByDesc('created_at')->limit(9)->get();
-        dd($search);
+        
        
-        return view('search' , compact('models','retrieve_history','search'));
+        return view('search' , compact('models','retrieve_history','search' ,'search_value'));
     }
 
 
@@ -287,6 +289,72 @@ class HomeController extends Controller
     }
 
 
+    public function checkout($total , $quantity){
+        $models = Category::get();
+        $retrieve_history = SearchHistory::where('user_id','=',Auth::id())
+        ->orderByDesc('created_at')->get();
+        $cities = Shipping::get();
+        return view('checkout',compact('total','quantity','models','retrieve_history','cities'));
+    }
+
+
+    public function shipping(Request $request , $total , $quantity){
+        $shipping = $request->shipping_price;
+        $total_price = $shipping + $total;
+
+
+        return response()->json(['shipping'=>$shipping , 'total_price'=>$total_price]);
+
+    }
+
+    public function order_details(Request $request){
+        $username = Auth::user()->name;
+        $city = explode('_',$request->city);
+        $city = $city[1];
+        $city_shipping = explode('_',$request->city);
+        $city_shipping = $city_shipping[0];
+
+        $order = new Order;
+        $order->user_id = Auth::id();
+        $order->address = $request->address;
+        $order->phone_number = $request->phone;
+        $order->city = $city;
+        $order->total_price = $request->order_price + $city_shipping;
+        $order->quantity = $request->quantity;
+
+        $order->save();
+         
+        $cart_items = Cart::where('user_id','=',Auth::id())->get();
+        
+        foreach ($cart_items as $cart_item) {
+             $order_details = new OrderDetails;
+             $order_details->order_id = $order->id;
+             $order_details->cart_id = $cart_item->id;
+            $order_details->save();
+        }
+
+        $cart_items->each->delete();
+
+
+
+        $data = [
+            'username' => $username,
+            'order_id' => $order->id,
+            'total_price' => $order->total_price,
+            'quantity' => $order->quantity,
+            'city' => $order->city,
+            'address' => $order->address,
+            'phone' =>$order->phone_number,
+        ];
+
+        Mail::to(Auth::user()->email)->send(new SendMailDemo($data));  //we will receive $data in constructor in sendmaildemo
+
+        return redirect()->route('home')->with('order_message', 'Thank You , We send You invoice in your email.');
+
+       
+       
+       
+    }
  
 
 }

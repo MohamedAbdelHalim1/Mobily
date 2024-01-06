@@ -20,4 +20,8 @@ class Cart extends Model
         return $this->belongsTo(Product::class , 'product_id');
     }
 
+    public function order_details(){
+        return $this->hasOne(OrderDetails::class , 'cart_id');
+    }
+
 }

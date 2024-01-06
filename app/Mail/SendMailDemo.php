@@ -16,9 +16,13 @@ class SendMailDemo extends Mailable
     /**
      * Create a new message instance.
      */
-    public function __construct()
+
+     public $data;
+
+
+    public function __construct($data)
     {
-        //
+        $this->data = $data;
     }
 
     /**
@@ -27,18 +31,16 @@ class SendMailDemo extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Send Mail Demo',
+            subject: 'Mobily Store',
         );
     }
 
     /**
      * Get the message content definition.
      */
-    public function content(): Content
+    public function build()
     {
-        return new Content(
-            view: 'view.name',
-        );
+        return $this->view('order_mail')->with(['data' => $this->data])->subject('Mobily');
     }
 
     /**

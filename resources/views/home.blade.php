@@ -42,7 +42,16 @@
 
 @section('content')
 
-
+@if (\Session::has('order_message'))
+    <div class="col-sm-12">
+        <div class="alert  alert-success alert-dismissible fade show" role="alert">
+        {{ \Session::get('order_message') }}
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+        </div>
+    </div>
+@endif
 
 
 <br><div class="container">
@@ -85,6 +94,30 @@
 
 
 <script type="text/javascript">
+
+
+// Test for the ugliness.
+if (window.location.hash === "#_=_"){
+
+// Check if the browser supports history.replaceState.
+if (history.replaceState) {
+
+    // Keep the exact URL up to the hash.
+    var cleanHref = window.location.href.split("#")[0];
+
+    // Replace the URL in the address bar without messing with the back button.
+    history.replaceState(null, null, cleanHref);
+
+} else {
+
+    // Well, you're on an old browser, we can get rid of the _=_ but not the #.
+    window.location.hash = "";
+
+}
+
+}
+
+
   $.ajaxSetup({
     headers: {
         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')

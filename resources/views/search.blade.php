@@ -42,44 +42,44 @@
 
 @section('content')
 
-<section class="pt-5 pb-5">
+<section class="pt-5 pb-5 updated_cart">
   <div class="container">
     <div class="row w-100">
         <div class="col-lg-12 col-md-12 col-12">
-            <h3 class="display-5 mb-1" style="font-style: oblique;"><b>Results</b></h3>
+            <h3 class="display-5 mb-2 text-center" style="font-style: oblique;"><b>Search Results</b></h3>
             <p class="mb-5 text-center">
-            <table class="table table-condensed table-responsive">
-               
+            <table id="shoppingCart" class="table table-condensed table-responsive">
                 <tbody>
-                    
+                    @if(count($search) == 0)
+                    <tr><td> <h1>Sorry! there is no Product Like this.</h1></td></tr>
+                    @else
+                        @foreach($search as $search)
                         <tr>
                             <td data-th="Product">
                                 <div class="row">
                                     <div class="col-md-3 text-left">
-        
-                                        <img src=""  alt="image" style="width:120px;height:120px;">
-                                       
+                                    @foreach($search->product_images as $key => $slider)
+                                        @if($key == 0)
+                                        <img src="/storage/files/{{ $slider->path }}"  alt="{{ $search->name }}" style="width:160px;height:160px;">
+                                        @endif
+                                    @endforeach        
                                     </div>
                                     <div class="col-md-9 text-left mt-sm-2">
-                                        <h4><b>name</b></h4>
-                                        <b>Brand : </b>brand<br>
+                                    <a href="{{route('more_details',$search->id)}}"> <h4><b style="background:yellow;">{{$search->name}}</b>, {{$search->operating_system}} {{$search->ram}}GB Ram {{$search->storage}}GB Storage</h4></a>
+                                        <b>Brand : </b>{{$search->category->name}}<br>
+                                        <b>Color : </b>{{$search->color}}<br>
                                     </div>
                                 </div>
                             </td>
-                           
-                            
-                        </tr>
-                       
+                        </tr><br>
+                        @endforeach
+                     @endif   
                 </tbody>
             </table>
+           
         </div>
     </div>
-    <div class="row mt-4 d-flex align-items-center">
-        <div class="col-sm-6 mb-3 mb-m-1 order-md-1 text-md-left">
-            <a href="{{route('home')}}" style="text-decoration:none;">
-                <i class="fa fa-arrow-left mr-2"></i> Home </a>
-        </div>
-    </div>
+    
 </div>
 </section>
 

@@ -67,7 +67,7 @@
     </div>
     <div class="row mt-4 d-flex align-items-center">
         <div class="col-sm-6 order-md-2">
-            <a  class="btn btn-primary" style="float:right;">Checkout</a>
+        @if(count($carts) != 0) <a href="{{route('checkout',['total'=>$total,'quantity'=>$counter])}}" class="btn btn-primary" style="float:right;">Checkout</a> @else <a class="btn btn-primary" style="float:right;">Checkout</a> @endif
         </div>
         <div class="col-sm-6 mb-3 mb-m-1 order-md-1 text-md-left">
             <a onclick="history.back()" style="color:blue;cursor: pointer;">
@@ -112,12 +112,14 @@ function quantity(id){
                     data: {quantity:quantity , id:id},
                     type:'post',
                     success:function(data){
+                        
                         if (data.wrongQuantity) {
                             Swal.fire({
                                         icon: "error",
                                         title: "Oops...",
                                         text: "Invalid Quantity Number!",
                                         });
+                                        
                         }
                         else if(data.checkStock){
                             Swal.fire({
@@ -125,12 +127,13 @@ function quantity(id){
                                         title: "Oops...",
                                         text: "This Quantity is Out Of stock , Please check number below brand name!",
                                         });
+                                        
                         }
                         else{
                             document.getElementById('total_price').textContent = data.total_price;
                             document.getElementById('itemsQuantity').textContent = data.counter;
-                           // location.reload();
-                           $("#total").load(location.href + " #total");
+                            location.reload();
+                           //$("#total").load(location.href + " #total");
 
                         }
                       
