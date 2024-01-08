@@ -66,6 +66,7 @@
       @php
         $has_fav = \App\Models\UserFavourite::where('product_id','=',$product->id)->where('user_id','=',Auth::id())->first();
       @endphp
+      @if($product->quantity != 0)
   <div class="col-md-3 mt-2">
       <div class="card" style="overflow:hidden;">
         <div class="card-body" style="margin:auto;">
@@ -80,12 +81,13 @@
            <a href="{{route('more_details',$product->id)}}" class="btn btn-primary btn-block">See More</a>
            <a onclick="cart({{$product->id}})" style="cursor: pointer;"><i class='fa fa-cart-plus' style='font-size:24px;padding:8px 10px 0 0;'></i></a>
            <a onclick="fav({{$product->id}})" style="cursor: pointer;"><span id="boot-icon{{$product->id}}" class="bi bi-heart @if($has_fav) active @else inactive @endif" style="font-size:22px;padding:8px 5px 0 0; opacity: 1;"></span></a>
-            
+          
             
                         
         </div>
       </div>
     </div>
+    @endif
     <!-- col-md-2 end -->
     @endforeach
 

@@ -307,6 +307,10 @@ class HomeController extends Controller
 
     }
 
+
+
+  
+
     public function order_details(Request $request){
         $username = Auth::user()->name;
         $city = explode('_',$request->city);
@@ -319,6 +323,8 @@ class HomeController extends Controller
         $order->address = $request->address;
         $order->phone_number = $request->phone;
         $order->city = $city;
+        $order->subtotal = $request->order_price;
+        $order->shipping = $city_shipping;
         $order->total_price = $request->order_price + $city_shipping;
         $order->quantity = $request->quantity;
 
@@ -329,8 +335,13 @@ class HomeController extends Controller
         foreach ($cart_items as $cart_item) {
              $order_details = new OrderDetails;
              $order_details->order_id = $order->id;
-             $order_details->cart_id = $cart_item->id;
+             $order_details->product_id = $cart_item->product->id;
+             $order_details->quantity = $cart_item->quantity;
             $order_details->save();
+            $reduce_product_quantity = Product::find($order_details->product_id);
+            $reduce_product_quantity->quantity = $reduce_product_quantity->quantity - $order_details->quantity;
+            $reduce_product_quantity->save();
+
         }
 
         $cart_items->each->delete();
@@ -345,16 +356,34 @@ class HomeController extends Controller
             'city' => $order->city,
             'address' => $order->address,
             'phone' =>$order->phone_number,
+            'created_at'=>$order->created_at->toDateString(),
+            'subtotal'=>$order->subtotal,
+            'shipping'=>$order->shipping,
+
         ];
 
         Mail::to(Auth::user()->email)->send(new SendMailDemo($data));  //we will receive $data in constructor in sendmaildemo
 
-        return redirect()->route('home')->with('order_message', 'Thank You , We send You invoice in your email.');
+        $retrieve_history = SearchHistory::where('user_id','=',Auth::id())
+        ->orderByDesc('created_at')->get();
 
        
-       
+
+
+        return redirect('/invoice');
+
        
     }
+
+    public function invoice(){
+        $order = Order::where('user_id','=',Auth::id())->where('status' ,'=', 'pending')->latest('created_at')->first();
+        $retrieve_history = SearchHistory::where('user_id','=',Auth::id())
+        ->orderByDesc('created_at')->get();
+        $username = Auth::user()->name;
+       //dd($order);
+        return view('invoice', compact('order','retrieve_history','username'));
+    }
+
  
 
 }

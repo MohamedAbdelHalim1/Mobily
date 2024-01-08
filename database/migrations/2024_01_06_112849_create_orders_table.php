@@ -17,7 +17,7 @@ return new class extends Migration
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->string('address');
             $table->string('phone_number');
-            $table->double('total_price');
+            $table->integer('total_price');
             $table->integer('quantity');
             $table->enum('status', ['Pending', 'in_delivery', 'deliverd'])->default('Pending');
             $table->timestamps();

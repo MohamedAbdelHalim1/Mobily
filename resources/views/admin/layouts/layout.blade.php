@@ -75,7 +75,7 @@
 
             <!-- Nav orders -->
             <li class="nav-item">
-                <a class="nav-link collapsed text-light" href="#" >
+                <a class="nav-link collapsed text-light" href="{{route('admin.orders')}}" >
                 <i class="fas fa-fw fa-cog"></i>
                 <span>Orders</span>
                 </a>

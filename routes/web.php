@@ -49,6 +49,6 @@ Route::post('/delete_history_item/{id}', [HomeController::class, 'history_item_d
 Route::post('/delete_history_all', [HomeController::class, 'history_del_all']);
 Route::get('/checkout/{total}/{quantity}',[HomeController::class ,'checkout'])->name('checkout');
 Route::post('/checkout/{total}/{quantity}', [HomeController::class, 'shipping'])->name('shipping');
-Route::post('/checkout', [HomeController::class, 'order_details'])->name('order_details');
-
+Route::post('/invoice', [HomeController::class, 'order_details'])->name('order_details');
+Route::get('/invoice', [HomeController::class, 'invoice'])->name('invoice');
 

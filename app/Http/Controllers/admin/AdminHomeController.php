@@ -8,6 +8,9 @@ use App\Models\Admin;
 use App\Models\Category;
 use App\Models\User;
 use App\Models\Product;
+use App\Models\Order;
+use App\Models\OrderDetails;
+use App\Models\Shipping;
 use App\Models\ProductImage;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
@@ -315,7 +318,69 @@ public function delete_product($id){
 }
 
 
+public function get_orders(){
+    $categories = Category::all();
+    $orders = Order::get();
+    return view('admin.orders',compact('categories','orders'));
+
+}
+
+public function order_details($order_id){
+    $categories = Category::all();
+    $order_details = OrderDetails::where('order_id','=',$order_id)->get();
+    return view('admin.order_details',compact('categories','order_details'));
+
+
+}
+
+public function edit_order_item($id){
+    $categories = Category::all();
+    $order_item = OrderDetails::findOrFail($id);
+    return view('admin.edit_order_item' , compact('categories','order_item'));
+
+}
+public function delete_order_item($id){
+    $order_item = OrderDetails::find($id);
+    $order_item->delete();
+    return redirect()->back()->with('delete' , 'Product Deleted Successfully');
+
+}
+
+public function upload_order_item(Request $request){
+    $order_id = $request->order_id;
+    $categories = Category::all();
+    $order_item = OrderDetails::find($request->item_id);
+  //dd($order_item->quantity);
+    if ($order_item->quantity > (int)$request->quantity) {
+        //subtract from quantity in order table
+        $new_quantity = $order_item->quantity - (int)$request->quantity;
+        //dd($new_quantity);
+        $order = Order::where('id','=',$order_id)->first();
+       //dd($order->quantity);
+        $order->quantity = $order->quantity - $new_quantity;
+       // dd($order->quantity);
+        $order->save();
+    }
+    elseif ($order_item->quantity == (int)$request->quantity) {
+        return redirect()->back()->with('caution' , 'Please Change Quantity!');
+
+    }else {
+        $new_quantity = (int)$request->quantity - $order_item->quantity;
+        $order = Order::where('id','=',$order_id)->first();
+        $order->quantity = $order->quantity + $new_quantity;
+        $order->save();
+    }
+
+    $order_item->quantity = (int)$request->quantity;
+    $order_item->save();
+
+  
+    
+    return redirect()->route('admin.order.details',compact('order_id','categories'))->with('success' , 'Item Quantity Changed Successfully');
+
+
+
 }
 
 
-  
+}

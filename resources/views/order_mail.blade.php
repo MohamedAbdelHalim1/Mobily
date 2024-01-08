@@ -1,42 +1,44 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <title>Bootstrap Example</title>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
-  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
-</head>
-<body>
+
 
 <div class="container">
-  <h1>Welcome! {{$data['username']}}</h1>
-  <h2>Thank you for buying from Mobily , Keep this Invoice If You want to return (Only in 14 days)</h2>
-  <table class="table table-bordered">
-    <thead>
-      <tr>
-        <th>Order NO</th>
-        <th>City</th>
-        <th>Address</th>
-        <th>Phone</th>
-        <th>Quantity</th>
-        <th>Price</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td>{{$data['order_id']}}</td>
-        <td>{{$data['city']}}</td>
-        <td>{{$data['address']}}</td>
-        <td>{{$data['phone']}}</td>
-        <td>{{$data['quantity']}}</td>
-        <td>{{$data['total_price']}}</td>
-
-      </tr>
-    </tbody>
-  </table>
+    <div class="row">
+        <div class="col-xs-12">
+    		<div class="invoice-title">
+                <h1>Your Order has been received</h1>
+    			<h2>Invoice (For returns in 14 Days)</h2><h3 class="pull-right">Order # {{$data['order_id']}}</h3>
+    		</div>
+    		<hr>
+    		<div class="row">
+    			<div class="col-sm-6 text-start">
+    				<address>
+    				<strong>Billed To:</strong><br>
+    					{{$data['username']}}<br>
+    					{{$data['city']}}<br>
+    					{{$data['address']}}<br>
+    					phone number: {{$data['phone']}}<br>
+                        <strong>Payment Method:</strong><br>
+    					Cash on delivery<br>
+                        <strong>Order Date:</strong><br>
+    					{{$data['created_at']}}<br><br>
+    				</address>
+    			</div>
+    			<div class="col-sm-6">
+                <strong>Shipped To:</strong><br>
+    					{{$data['username']}}<br>
+    					{{$data['city']}}<br>
+    					{{$data['address']}}<br>
+    					phone number: {{$data['phone']}}<br>
+                        <strong>purchase Summary:</strong><br>
+                        Subtotal: {{$data['subtotal']}}<br>
+                        Shipping: {{$data['shipping']}}<br>
+                        Total Price: <span style="color:blue;"> {{$data['total_price']}} </span>
+    				</address>
+    			</div>
+    		</div>
+    	</div>
+    </div>
+    
+  
 </div>
 
-</body>
-</html>
+

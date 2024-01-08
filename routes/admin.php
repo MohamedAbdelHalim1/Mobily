@@ -42,3 +42,11 @@ Route::delete('/deleteimage/{id}',[AdminHomeController::class , 'delete_image'])
 Route::post('/edit_product/{id}', [AdminHomeController::class , 'edit_upproduct'])->name('admin.editUpproduct');
 
 Route::delete('/delete_product/{id}',[AdminHomeController::class , 'delete_product'])->name('admin.deleteproduct');
+
+Route::get('/orders',[AdminHomeController::class , 'get_orders'])->name('admin.orders');
+Route::get('/order_details/{order_id}',[AdminHomeController::class , 'order_details'])->name('admin.order.details');
+
+Route::get('/edit_order_item/{id}', [AdminHomeController::class , 'edit_order_item'])->name('admin.edititem');
+Route::post('/edit_order_item', [AdminHomeController::class , 'upload_order_item'])->name('admin.uploaditem');
+
+Route::delete('/delete_order_item/{id}',[AdminHomeController::class , 'delete_order_item'])->name('admin.deleteitem');

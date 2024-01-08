@@ -112,7 +112,7 @@
             <div>
               <strong>Total Price</strong>
             </div>
-            <strong><span id="total_price"></span></strong>
+            <strong><span id="total_price"></span><span> LE</span></strong>
           </li>
         </ul>
 
