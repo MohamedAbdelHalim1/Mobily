@@ -249,10 +249,7 @@ table.table .avatar {
 					<div class="col-sm-6">
 						<h2>Manage <b>Orders</b></h2>
 					</div>
-					<div class="col-sm-6">
-						<a href="#"  class="btn btn-success" id="open-add"  data-toggle="modal"><i class="material-icons">&#xE147;</i> <span>Add New User</span></a>
-						<a href="#deleteEmployeeModal" class="btn btn-danger" data-toggle="modal"><i class="material-icons">&#xE15C;</i> <span>Delete</span></a>						
-					</div>
+			
 				</div>
 			</div>
 			<table class="table table-striped table-hover">
@@ -279,7 +276,7 @@ table.table .avatar {
 					<tr>
                         
 						<td>
-							{{$order->id}} <a href="{{route('admin.order.details' , ['order_id'=> $order->id])}}"><small>(details)</small></a>
+							{{$order->id}} <a href="{{route('admin.order.details' , ['order_id'=> $order->id , 'user_id'=> $order->user_id])}}"><small>(details)</small></a>
 						</td>
 						<td>{{$order->user->name}}</td>
 						<td>{{$order->phone_number}}</td>
@@ -289,12 +286,12 @@ table.table .avatar {
                         <td>{{$order->subtotal}}</td>
                         <td>{{$order->shipping}}</td>
                         <td>{{$order->total_price}}</td>
-                        <td>{{$order->status}}</td>
+                        <td><b>{{$order->status}}</b></td>
                         <td>{{$order->created_at->toDateString()}}</td>
 						
 						<td>
-							<a href="#">  <i class="material-icons" data-toggle="tooltip" title="Edit">&#xE254;</i></a>
-							<a href="#">  <i class="material-icons" data-toggle="tooltip" title="Delete">&#xE872;</i></a>
+				   			<a href="{{route('admin.editorder' , $order->id)}}"><i class="material-icons" data-toggle="tooltip" title="Edit">&#xE254;</i></a>
+							<a onclick="delOrder({{$order->id}})" style="cursor:pointer">  <i class="material-icons" data-toggle="tooltip" title="Delete">&#xE872;</i></a>
 						</td>
 					</tr>
     
@@ -305,22 +302,47 @@ table.table .avatar {
 
 
 
+
 			<div class="clearfix">
-				<div class="hint-text">Showing <b>5</b> out of <b>25</b> entries</div>
-				<ul class="pagination">
-					<li class="page-item disabled"><a href="#">Previous</a></li>
-					<li class="page-item"><a href="#" class="page-link">1</a></li>
-					<li class="page-item"><a href="#" class="page-link">2</a></li>
-					<li class="page-item active"><a href="#" class="page-link">3</a></li>
-					<li class="page-item"><a href="#" class="page-link">4</a></li>
-					<li class="page-item"><a href="#" class="page-link">5</a></li>
-					<li class="page-item"><a href="#" class="page-link">Next</a></li>
-				</ul>
-			</div>
+				{{$orders->links()}}
+			
+             </div>
 		</div>
 	</div>        
 </div>
 
+<script type="text/javascript">
+	  $.ajaxSetup({
+    headers: {
+        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+    }
+});
+
+
+	function delOrder(id){
+		Swal.fire({
+                title: "Are You Sure?",
+                showCancelButton: true,
+
+                }).then((result) => {
+                /* Read more about isConfirmed, isDenied below */
+                if (result.isConfirmed) {
+                        $.ajax({
+                        type : "POST",
+                        url : "delete_order/"+id,
+                        data :{"_token": "{{ csrf_token() }}" , "id":id },
+                        success : function(response){
+							Swal.fire("Order Deleted!").then(function(result){
+								if(result.value){
+									location.reload();
+								}
+							});
+                                    }
+                        });
+	}
+});
+}
+</script>
 
 
 @endsection

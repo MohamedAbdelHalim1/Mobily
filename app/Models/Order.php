@@ -9,6 +9,10 @@ class Order extends Model
 {
     use HasFactory;
     protected $table = 'orders';
+    protected $fillable = ['user_id ','address','phone_number','total_price','quantity','status','city','shipping','subtotal'];
+    protected $orderstatus = [
+        'status' => orderstatus::class
+    ];
 
 
     public function user(){

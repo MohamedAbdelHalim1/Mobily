@@ -250,8 +250,7 @@ table.table .avatar {
 						<h2>Manage <b>Categories</b></h2>
 					</div>
 					<div class="col-sm-6">
-						<a href="#"  class="btn btn-success" id="open-add"  data-toggle="modal"><i class="material-icons">&#xE147;</i> <span>Add New Category/Subcategory</span></a>
-						<a href="#deleteEmployeeModal" class="btn btn-danger" data-toggle="modal"><i class="material-icons">&#xE15C;</i> <span>Delete</span></a>						
+						<a href="{{route('admin.addnew.category')}}"  class="btn btn-success" ><i class="material-icons">&#xE147;</i> <span>Add New Category/Subcategory</span></a>
 					</div>
 				</div>
 			</div>
@@ -290,7 +289,7 @@ table.table .avatar {
 						@endif						
 					
 						<td>
-							<a href="#" class="open-edit" > <span id="{{$category->id}}"></span> <i class="material-icons" data-toggle="tooltip" title="Edit">&#xE254;</i></a>
+						    <a href="{{route('admin.edit.category' , $category->id)}}">  <i class="material-icons" data-toggle="tooltip" title="Edit">&#xE254;</i></a>
 							<a href="#" class="open-remove" > <span id="{{$category->id}}"></span> <i class="material-icons" data-toggle="tooltip" title="Delete">&#xE872;</i></a>
 						</td>
 					</tr>
@@ -299,52 +298,6 @@ table.table .avatar {
 	
 				</tbody>
 			</table>
-<!-- Edit Modal -->
-<div id="editModal" class="modal fade">
-	<div class="modal-dialog">
-		<div class="modal-content">
-			<form id="editForm" method="post" enctype="multipart/form-data">
-			@csrf
-                
-                <input type="hidden" name="id" id="id">
-				<div class="modal-header">						
-					<h4 class="modal-title">Edit Category</h4>
-					<button type="button" class="close" data-dismiss="modal" aria-hidden="true" style="border-radius : 10px;">&times;</button>
-				</div>
-      
-				<div class="modal-body">					
-					<div class="form-group">
-						<label>Name</label>
-						<input type="text" class="form-control" name="name" id="name" value="" required>
-					</div>
-                    <div class="form-group">
-						<label>Image</label>
-						<input type="file" class="form-control" name="image" id="image" required>
-					</div>
-
-					<div class="form-group">
-					<select name="category" id="category" class="form-control">
-					<option>Choose parent Category</option>
-						@foreach ($categories as $category)
-							
-							<option value = "{{$category->id}}">{{$category->name}}</option>
-							
-						@endforeach
-					</select>
-					</div>
-                    				
-				</div>
-				<div class="modal-footer">
-                    
-					<input type="button" class="btn btn-default" data-dismiss="modal" value="Cancel">
-					<input type="submit" class="btn btn-info" value="Save" id="submit">
-                    
-				</div>
-                </form> 
-            
-		</div>
-	</div>
-</div>
 
 <!-- Delete Modal HTML -->
 <div class="modal fade" id="removeModal">
@@ -376,19 +329,10 @@ table.table .avatar {
 
 
 
-
-			<div class="clearfix">
-				<div class="hint-text">Showing <b>5</b> out of <b>25</b> entries</div>
-				<ul class="pagination">
-					<li class="page-item disabled"><a href="#">Previous</a></li>
-					<li class="page-item"><a href="#" class="page-link">1</a></li>
-					<li class="page-item"><a href="#" class="page-link">2</a></li>
-					<li class="page-item active"><a href="#" class="page-link">3</a></li>
-					<li class="page-item"><a href="#" class="page-link">4</a></li>
-					<li class="page-item"><a href="#" class="page-link">5</a></li>
-					<li class="page-item"><a href="#" class="page-link">Next</a></li>
-				</ul>
-			</div>
+<div class="clearfix">
+				{{$categories->links()}}
+			
+             </div>
 		</div>
 	</div>        
 </div>
@@ -442,57 +386,6 @@ table.table .avatar {
 
 <script type="text/javascript">
 
-// edit ajax request
-
-$(document).ready(function(){
-
-    $('.open-edit').on('click',function(){
-        $('#editModal').modal('show');
-
-        $tr = $(this).closest('tr');
-
-        var data = $tr.children("td").map(function(){
-            return $(this).text();
-        }).get();
-
-        $('#id').val(data[0]);
-        $('#name').val(data[1]);
-
-    });
-
-
-	$('#editForm').on('submit', function(e){
-		e.preventDefault();
-		var id = $("#id").val();
-		let noteFormData = new FormData(this);
-        noteFormData.append('image', document.getElementById('image').files[0]);
-	$.ajax({
-		type : "POST",
-		header:{
-			'X-CSRF-TOKEN':$('meta[name="csrf-token"]').attr('content')
-				},
-		url : "edit_category/" + id,
-		data : noteFormData,
-		contentType: false,
-        processData: false,
-        cache: false,
-		success : function(response){
-			$('#editmodal').modal('hide');
-			location.reload();
-			alert("Category updated!");
-		},
-		error : function(error){
-			console.log(error);
-		}
-
-
-	});
-});
-
-
-});
-
-
 // delete ajax request
 
 $(document).ready(function(){
@@ -521,8 +414,11 @@ $(document).ready(function(){
                     "id": myid},
             success : function(response){
                 $('#removeModal').modal('hide');
-                location.reload();
-                alert("Category Deleted!");
+				Swal.fire("Category Deleted!").then(function(result){
+                    if(result.value){
+                        location.reload();
+                    }
+                });
             },
             error : function(error){
                 console.log(error);
@@ -561,7 +457,7 @@ $(document).ready(function(){
 		success : function(response){
 			$('#addmodel').modal('hide');
 			location.reload();
-			alert("Category Added!");
+			swal("Category Added!");
 		},
 		error : function(error){
 			console.log(error);

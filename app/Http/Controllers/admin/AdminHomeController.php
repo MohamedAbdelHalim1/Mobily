@@ -12,6 +12,7 @@ use App\Models\Order;
 use App\Models\OrderDetails;
 use App\Models\Shipping;
 use App\Models\ProductImage;
+use App\Models\UserProductReview;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
 
@@ -24,7 +25,14 @@ class AdminHomeController extends Controller
 
     public function index(){
         $categories = Category::all();
-        return view('admin.home' , compact('categories'));
+
+        $pending_orders = Order::where('status','=','pending')->get();
+        $delivering_orders = Order::where('status','=','in_delivery')->get();
+        $deliverd_orders = Order::where('status','=','deliverd')->get();
+        $customers = User::all();
+
+   
+        return view('admin.home' , compact('categories','pending_orders','delivering_orders','deliverd_orders','customers'));
     }
 
 
@@ -32,7 +40,7 @@ class AdminHomeController extends Controller
 
     public function get_users(){
         $categories = Category::all();
-        $users = User::all();
+        $users = User::simplePaginate(10);
         return view('admin.get_user', compact('users','categories'));
     }
 
@@ -72,36 +80,66 @@ class AdminHomeController extends Controller
     ///////////////////////////////Start Categories//////////////////////////////////////
 
     public function get_category(){
-        $categories = Category::all();
+        $categories = Category::simplePaginate(10);
         //dd($categories);
         return view('admin.categories' , compact('categories'));
     }
 
 
 
-    public function edit_category(Request $request , $id){
-       // dd($request);
-        $category = Category::find($id);
-        $file_name = null;
-        if($request->hasFile('image')){
-            $path = 'files/';
-            $file = $request->file('image');
-            $file_name = time().'_'.$file->getClientOriginalName();
-            $upload = $file->storeAs($path , $file_name , 'public');
-        }
-        
-        $category->name = $request->name;
-        $category->image_path = $file_name;
-        $category->parent_id = $request->category;
-       
-       
-        $category->save();
+    public function edit_category($id){
+        $categories = Category::all();
+        $specific_category = Category::findOrFail($id);
+        return view('admin.edit_category' , compact('categories','specific_category'));
 
+    }
+    public function delete_category_image($id){
+        //dd($id);
+        $image = Category::findOrFail($id);
+        $image->update(['image_path'=>null]);
+        return redirect()->back();
     }
 
     public function delete_category($id){
         $category = Category::findOrFail($id);
         $category->delete();
+
+    }
+
+
+    
+    public function upload_category(Request $request , $id)
+    {
+        //dd($request);
+        $categories = Category::all();
+       // dd($categories);
+
+     $category = Category::find($id);
+  
+
+  $file_name = $category->image_path;
+    if($request->file('image')) {
+     //  dd("hi");
+        $path = 'files/';
+        $file = $request->file('image');
+        $file_name = time().'_'.$file->getClientOriginalName();
+        $upload = $file->storeAs($path , $file_name , 'public');      
+
+      }  
+
+            $category->name = $request->name;
+            $category->image_path = $file_name;
+            $category->parent_id = $request->parent;
+            $category->save();
+
+      return redirect()->route('admin.categories');
+}
+
+
+
+    public function add_new_category(){
+        $categories = Category::all();
+        return view('admin.add_category',compact('categories'));
 
     }
 
@@ -122,6 +160,8 @@ class AdminHomeController extends Controller
             $category->image_path = $file_name;
             $category->parent_id = $request->category;
             $category->save();
+            return redirect()->route('admin.categories');
+
        
        
 
@@ -137,7 +177,7 @@ class AdminHomeController extends Controller
         $categories = Category::all();
         //dd($categories);
        
-        $products = Product::where("category_id" , "=" , $id)->get();
+        $products = Product::where("category_id" , "=" , $id)->simplePaginate(10);
 
         return view('admin.products' , compact('products','categories'));
      
@@ -320,67 +360,178 @@ public function delete_product($id){
 
 public function get_orders(){
     $categories = Category::all();
-    $orders = Order::get();
+    $orders = Order::simplePaginate(10);
     return view('admin.orders',compact('categories','orders'));
 
 }
 
-public function order_details($order_id){
+public function order_details($order_id , $user_id){
     $categories = Category::all();
     $order_details = OrderDetails::where('order_id','=',$order_id)->get();
-    return view('admin.order_details',compact('categories','order_details'));
+    return view('admin.order_details',compact('categories','order_details','order_id','user_id'));
 
 
 }
 
-public function edit_order_item($id){
+public function edit_order_item($id , $order_id , $user_id){
     $categories = Category::all();
     $order_item = OrderDetails::findOrFail($id);
-    return view('admin.edit_order_item' , compact('categories','order_item'));
+    return view('admin.edit_order_item' , compact('categories','order_item','order_id','user_id'));
 
 }
 public function delete_order_item($id){
     $order_item = OrderDetails::find($id);
+    $quantity = $order_item->quantity;
+    $price = $order_item->price;
+    $item_id = $id;
+    $product = Product::where('id','=',$order_item->product_id)->first();
+    $product->quantity = $product->quantity + $quantity;
+    $product->save();
+    $order = Order::where('id','=',$order_item->order_id)->first();
     $order_item->delete();
+    $order->quantity = $order->quantity - $quantity;
+    $order->subtotal = $order->subtotal - ($quantity * $price);
+    $order->total_price = $order->subtotal + $order->shipping;
+    $order->save();
+
     return redirect()->back()->with('delete' , 'Product Deleted Successfully');
 
 }
 
 public function upload_order_item(Request $request){
     $order_id = $request->order_id;
+    $user_id = $request->user_id;
     $categories = Category::all();
     $order_item = OrderDetails::find($request->item_id);
-  //dd($order_item->quantity);
-    if ($order_item->quantity > (int)$request->quantity) {
-        //subtract from quantity in order table
-        $new_quantity = $order_item->quantity - (int)$request->quantity;
-        //dd($new_quantity);
-        $order = Order::where('id','=',$order_id)->first();
-       //dd($order->quantity);
-        $order->quantity = $order->quantity - $new_quantity;
-       // dd($order->quantity);
-        $order->save();
-    }
-    elseif ($order_item->quantity == (int)$request->quantity) {
+    if($order_item->quantity == (int)$request->quantity) {
         return redirect()->back()->with('caution' , 'Please Change Quantity!');
-
-    }else {
-        $new_quantity = (int)$request->quantity - $order_item->quantity;
-        $order = Order::where('id','=',$order_id)->first();
-        $order->quantity = $order->quantity + $new_quantity;
-        $order->save();
+    }
+    $update_quantity_product = Product::where('id','=',$order_item->product_id)->first();
+    if ($order_item->quantity >  (int)$request->quantity) {
+        //increas whole product quantity
+        $difference = $order_item->quantity - (int)$request->quantity;
+        $update_quantity_product->quantity = $update_quantity_product->quantity + $difference;
+        $update_quantity_product->save();
+    }
+    else{
+        //decreas whole product quantity
+        $difference = (int)$request->quantity - $order_item->quantity;
+        $update_quantity_product->quantity = $update_quantity_product->quantity - $difference;
+        $update_quantity_product->save();
     }
 
-    $order_item->quantity = (int)$request->quantity;
-    $order_item->save();
 
+    $new_item_quantity = (int)$request->quantity;
+    $order_item->quantity = $new_item_quantity;
+    $order_item->save();
+    $order = Order::find($order_id);
+    $order_new_quantity = OrderDetails::where('order_id','=',$order_id)->get();
+    $new_quantity = 0;
+    $new_price = 0;
+    foreach ($order_new_quantity as $item) {
+        $new_quantity = $new_quantity + $item->quantity;
+        $new_price = $new_price + ($item->quantity * $item->price);
+    }
+    $order->subtotal = $new_price;
+    $order->total_price = $new_price + $order->shipping;
+    $order->quantity = $new_quantity;
+    $order->save();
   
+    return redirect()->route('admin.order.details',compact('order_id','categories','user_id'))->with('success' , 'Item Quantity Changed Successfully');
+
+}
+
+
+
+
+public function edit_order($id){
+    $order=Order::find($id);
+    $categories = Category::all();
+return view('admin.edit_order',compact('order','categories'));
+
+}
+
+public function upload_order(Request $request){
+    $order = Order::find($request->order_id);
+    $order->status = $request->status;
+    $order->save();
+    $categories = Category::all();
+    return redirect()->route('admin.orders',compact('categories'));
+
+
+}
+
+
+public function delete_order($id){
+    $order=Order::find($id);
+    $order->delete();
+}
+
+
+
+////////////////////////////////////////////////////
+
+
+public function shipping(){
+    $categories = Category::all();
+    $shippings = Shipping::simplePaginate(10);
+    return view('admin.shipping',compact('shippings','categories'));
+}
+
+
+public function add_shipping(Request $request){  //this req came from ajax req that refer to url that refer to this fun
+
+    $shipping = new Shipping();
+    $shipping->city = $request->city;
+    $shipping->price = $request->cost;
     
-    return redirect()->route('admin.order.details',compact('order_id','categories'))->with('success' , 'Item Quantity Changed Successfully');
+    $shipping->save();
+
+}
+
+public function edit_shipping(Request $request , $id){
+    $shipping = Shipping::find($id);
+
+    $shipping->city = $request ->input('city');
+    $shipping->price = $request ->input('cost');
+
+    $shipping->save();
 
 
 
 }
+
+
+
+
+public function remove_shipping($id){
+    $shipping = Shipping::findOrFail($id);
+    $shipping->delete();
+
+}
+
+
+
+
+public function user_reviews($user_id){
+    $categories = Category::all();
+    $reviews = UserProductReview::where('user_id','=',$user_id)->simplePaginate(10);
+    $username = User::find($user_id);
+    return view('admin.user_reviews',compact('reviews','categories','username'));
+
+}
+
+public function remove_review($id){
+    $review = UserProductReview::findOrFail($id);
+    $review->delete();
+}
+
+
+
+
+
+
+
 
 
 }

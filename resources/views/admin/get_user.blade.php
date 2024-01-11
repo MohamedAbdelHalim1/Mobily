@@ -263,7 +263,7 @@ table.table .avatar {
 						</th>
 						<th>Name</th>
 						<th>Email</th>
-					
+						<th>Reviews</th>
 						<th>Actions</th>
 					</tr>
 				</thead>
@@ -276,7 +276,7 @@ table.table .avatar {
 						</td>
 						<td>{{$user->name}}</td>
 						<td>{{$user->email}}</td>
-						
+						<td> <a style="color:blue;" href="{{route('admin.user.review' , ['user_id'=> $user->id])}}">(All Reviews)</a></td>
 						<td>
 							<a href="#" class="open-edit" > <span id="{{$user->id}}"></span> <i class="material-icons" data-toggle="tooltip" title="Edit">&#xE254;</i></a>
 							<a href="#" class="open-remove" > <span id="{{$user->id}}"></span> <i class="material-icons" data-toggle="tooltip" title="Delete">&#xE872;</i></a>
@@ -354,19 +354,10 @@ table.table .avatar {
 
 
 
-
-			<div class="clearfix">
-				<div class="hint-text">Showing <b>5</b> out of <b>25</b> entries</div>
-				<ul class="pagination">
-					<li class="page-item disabled"><a href="#">Previous</a></li>
-					<li class="page-item"><a href="#" class="page-link">1</a></li>
-					<li class="page-item"><a href="#" class="page-link">2</a></li>
-					<li class="page-item active"><a href="#" class="page-link">3</a></li>
-					<li class="page-item"><a href="#" class="page-link">4</a></li>
-					<li class="page-item"><a href="#" class="page-link">5</a></li>
-					<li class="page-item"><a href="#" class="page-link">Next</a></li>
-				</ul>
-			</div>
+            <div class="clearfix">
+				{{$users->links()}}
+			
+             </div>
 		</div>
 	</div>        
 </div>
@@ -442,8 +433,11 @@ $(document).ready(function(){
             data : $('#editForm').serialize(),
             success : function(response){
                 $('#editModal').modal('hide');
-                location.reload();
-                alert("user Data Updated!");
+				Swal.fire("User Updated!").then(function(result){
+                    if(result.value){
+                        location.reload();
+                    }
+                });
             },
             error : function(error){
                 console.log(error);
@@ -485,8 +479,12 @@ $(document).ready(function(){
                     "id": myid},
             success : function(response){
                 $('#removeModal').modal('hide');
-                location.reload();
-                alert("user Deleted!");
+                
+				Swal.fire("User Deleted!").then(function(result){
+                    if(result.value){
+                        location.reload();
+                    }
+                });
             },
             error : function(error){
                 console.log(error);
@@ -519,8 +517,11 @@ $(document).ready(function(){
 		data : $('#addForm').serialize(),
 		success : function(response){
 			$('#adduser').modal('hide');
-			location.reload();
-			alert("user Added!");
+			Swal.fire("User Added!").then(function(result){
+                    if(result.value){
+                        location.reload();
+                    }
+                });
 		},
 		error : function(error){
 			console.log(error);

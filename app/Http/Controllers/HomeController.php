@@ -42,13 +42,14 @@ class HomeController extends Controller
     public function index()
     {
         $models = Category::get();
-        $recommended_and_newArrival_products = Product::where('recommended', '=', 1)
-        ->orwhere('new_arrival', '=', 1)->get();
+        $recommended = Product::where('recommended', '=', 1)->get();
+        $new_arrival = Product::where('new_arrival', '=', 1)->get();
+
         $retrieve_history = SearchHistory::where('user_id','=',Auth::id())
         ->orderByDesc('created_at')->limit(9)->get();
       //  dd($retrieve_history);
    
-        return view('home',compact('models','recommended_and_newArrival_products','retrieve_history'));
+        return view('home',compact('models','recommended','new_arrival','retrieve_history'));
     }
 
     public function specific_model($id){
@@ -336,6 +337,7 @@ class HomeController extends Controller
              $order_details = new OrderDetails;
              $order_details->order_id = $order->id;
              $order_details->product_id = $cart_item->product->id;
+             $order_details->price = $cart_item->product->price;
              $order_details->quantity = $cart_item->quantity;
             $order_details->save();
             $reduce_product_quantity = Product::find($order_details->product_id);
@@ -346,7 +348,7 @@ class HomeController extends Controller
 
         $cart_items->each->delete();
 
-
+       
 
         $data = [
             'username' => $username,

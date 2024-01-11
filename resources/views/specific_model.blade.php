@@ -84,7 +84,7 @@
             <div class="card-body" style="margin:auto;">
                       @foreach($product->product_images as $key => $slider)
                             @if($key == 0)
-                            <img src="/storage/files/{{ $slider->path }}"  alt="{{ $product->name }}" style="width:130px;height:130px;">
+                            <img src="/storage/files/{{ $slider->path }}"  alt="{{ $product->name }}" style="width:130px;height:130px;" loading="lazy">
                             @endif
                         @endforeach
               <h5 class="card-title font-weight-bold  ">{{$product->name}}</h5>

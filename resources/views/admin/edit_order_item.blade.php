@@ -101,7 +101,8 @@ form .page .field select{
 <div class="form-outer">
   <form method="POST" action="{{ route('admin.uploaditem') }}">
      @csrf 
-     <input type="hidden" name="order_id" value="{{$order_item->order->id}}">
+     <input type="hidden" name="order_id" value="{{$order_id}}">
+     <input type="hidden" name="user_id" value="{{$user_id}}">     
      <input type="hidden" name="item_id" value="{{$order_item->id}}">
 
     <div class="page slidepage">

@@ -9,6 +9,7 @@ class Category extends Model
 {
     use HasFactory;
     protected $table = 'categories';
+    protected $fillable = ['image_path'];
 
     public function maincategory()
     {

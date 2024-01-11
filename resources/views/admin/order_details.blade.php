@@ -62,7 +62,7 @@
      
      <b>ADDED : {{$order_details->order->created_at->toDateString()}}</b>
      <div style="display:flex;">
-     <a type="button" class="btn btn-primary" href="{{route('admin.edititem' , $order_details->id)}}">Edit</a>
+     <a type="button" class="btn btn-primary" href="{{route('admin.edititem' , ['id'=>$order_details->id,'order_id'=>$order_id,'user_id'=>$user_id])}}">Edit</a>
      <form action="{{route('admin.deleteitem' , $order_details->id)}}" method="post">
         @csrf 
         @method('delete')
