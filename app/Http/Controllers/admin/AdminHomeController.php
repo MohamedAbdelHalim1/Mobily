@@ -15,6 +15,9 @@ use App\Models\ProductImage;
 use App\Models\UserProductReview;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
+use DateTime;
+use DatePeriod;
+use DateInterval;
 
 
 
@@ -24,15 +27,33 @@ class AdminHomeController extends Controller
 
 
     public function index(){
-        $categories = Category::all();
-
+        $categories = Category::all();        
+        $customers = User::all();
         $pending_orders = Order::where('status','=','pending')->get();
         $delivering_orders = Order::where('status','=','in_delivery')->get();
         $deliverd_orders = Order::where('status','=','deliverd')->get();
-        $customers = User::all();
+        $begin_of_month = new DateTime(now()->startOfMonth()->format('Y-m-d'));
+        $tomorrow = new DateTime(now()->tomorrow()->format('Y-m-d'));   
+        $interval = DateInterval::createFromDateString('1 day');
+        
+        $period_monthly = new DatePeriod($begin_of_month, $interval, $tomorrow);
+        $monthly_earning = 0;
+    
+        foreach ($period_monthly as $date) {  
+           $day_orders = Order::whereDate('created_at','=',$date->format('Y-m-d'))->where('status','=','deliverd')->get();
+           if (count($day_orders) > 0) {
+            
+            foreach ($day_orders as $day_orders) {
+                $monthly_earning = $monthly_earning + $day_orders->total_price;
+                
+               }
+           }
 
-   
-        return view('admin.home' , compact('categories','pending_orders','delivering_orders','deliverd_orders','customers'));
+           
+           
+        }
+
+        return view('admin.home' , compact('monthly_earning','categories','pending_orders','delivering_orders','deliverd_orders','customers'));
     }
 
 

@@ -247,10 +247,10 @@ table.table .avatar {
 			<div class="table-title">
 				<div class="row">
 					<div class="col-sm-6">
-						<h2>Manage <b>Users</b></h2>
+						<h2>Manage <b>Shipping Costs</b></h2>
 					</div>
 					<div class="col-sm-6">
-						<a href="#"  class="btn btn-success" id="open-add"  data-toggle="modal"><i class="material-icons">&#xE147;</i> <span>Add New User</span></a>
+						<a href="#"  class="btn btn-success" id="open-add"  data-toggle="modal"><i class="material-icons">&#xE147;</i> <span>Add New Shipping</span></a>
 					</div>
 				</div>
 			</div>

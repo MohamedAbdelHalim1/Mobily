@@ -47,7 +47,7 @@
   <div class="carousel-inner">
   @foreach($product->product_images as $key => $slider)
             <div class="carousel-item {{$key == 0 ? 'active' : ''}}">
-              <img src="/storage/files/{{ $slider->path }}"  alt="{{ $product->name }}" style="width:300px;height:350px;">
+              <img src="/storage/files/{{ $slider->path }}"  alt="{{ $product->name }}" style="width:300px;height:350px;" class="slider-img">
             </div>
         @endforeach
   </div>

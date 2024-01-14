@@ -36,6 +36,49 @@
 .button4:hover {background-color: #e7e7e7;}
 
 
+.flip-card {
+  background-color: transparent;
+  width: 220px;
+  height: 220px;
+  perspective: 1000px;
+}
+
+.flip-card-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  text-align: center;
+  transition: transform 0.7s;
+  transform-style: preserve-3d;
+  box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
+}
+
+.flip-card:hover .flip-card-inner {
+  transform: rotateY(180deg);
+}
+
+.flip-card-front, .flip-card-back {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+}
+
+.flip-card-front {
+  background-color: #bbb;
+  color: black;
+}
+
+.flip-card-back {
+  background-color: #2980b9;
+  color: white;
+  transform: rotateY(180deg);
+  padding-top:75px;
+  font-weight:bold;
+  font-size:30px
+}
+
 </style>
 @endsection
 
@@ -44,7 +87,7 @@
 <div class="nav">
 @foreach ($models as $model) 
 @if($model->maincategory != null)
-<a href="{{route('model',$model->id)}}">{{$model->name}}</a>
+<a href="{{route('model',$model->id)}}">{{ucfirst($model->name)}}</a>
 @endif
 @endforeach
 </div>
@@ -57,14 +100,21 @@
 
 <div class="w3-container w3-animate-bottom" id="section1"  data-aos="fade-up" style="width:75%;margin:30px 0 30px 160px;">
   <div class="row" style="padding:25px;">
-  <h1 style="margin:0 0 25px 0; text-transform: uppercase;color: #4CAF50;"><b>Our Categories</b></h1><br><br>
+  <h1 style="margin:0 0 25px 0; text-transform: uppercase;color: #4CAF50;"><b>Top Brands</b></h1><br><br>
 
   @foreach ($models as $model) 
     @if($model->maincategory != null)
     <div class="col-md-3 mt-2">
-      <a href="{{route('model',$model->id)}}">
-        <img src="/storage/files/{{ $model->image_path }}"  alt="{{ $model->name }}" style="width:140px;height:120px;border-radius:50%;" loading="lazy">
-      </a>
+     <div class="flip-card">
+       <div class="flip-card-inner">
+         <div class="flip-card-front">
+          <img src="/storage/files/{{ $model->image_path }}"  alt="{{ $model->name }}" style="width:100%;height:100%;" loading="lazy">
+         </div>
+         <div class="flip-card-back">
+        <a href="{{route('model',$model->id)}}" style="text-decoration:none;color:white;">{{$model->name}}</a>
+         </div>
+        </div>
+      </div>
     </div> 
     @endif
     @endforeach
